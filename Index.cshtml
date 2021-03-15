@@ -1,0 +1,32 @@
+﻿@model IEnumerable<ShopWebApplication.Models.Product>
+@{
+    Layout = "~/Views/Shared/HomeLayout.cshtml";
+}
+<div class="bocuc bocuc_27 ">
+    <div class="sanpham_box ">
+        <ul>
+            @foreach (var item in Model)
+            {
+                <li id="sp_27_10 ">
+                    <div class="div_noidung ">
+                        <div class="truong anh ">
+                            <a href="http://net-121pm.web7b.com/ao-dai-cach-tan-sara-mau-den-theu-hoa-id1.html ">
+                                <img alt="" class="lazy anh_sanpham_danhsach " data-src=" " src="~/Content/Image/@item.PhotoPath" />
+                            </a>
+                        </div>
+                        <div class="phantram "><span class="so_phantram ">10</span> <span class="dau_phantram ">%</span></div>
+                        <h2 class="truong tieude "><a>áo quần đẹp thời trang mới </a></h2>
+
+                        <div class="gia "><strong>1.000.1.000</strong> <span>VND</span></div>
+
+                        <a href="@Url.Action("ThemGioHang", "GioHang", new {@MaSP = item.ProductID, @url = Request.Url.ToString() })">
+                            <div class="truong nutmuahang ">Mua Hàng</div>
+                        </a>
+                        
+                    </div>
+                </li>
+            }                          
+        </ul>
+    </div>
+</div>
+          
