@@ -7,6 +7,7 @@ using System.Web;
 using System.Web.Mvc;
 using ShopWebApplication.Models;
 using PagedList;
+using ShopWebApplication.Services;
 
 
 namespace ShopWebApplication.Controllers
@@ -15,27 +16,11 @@ namespace ShopWebApplication.Controllers
     public class ProductController : Controller
     {
         // GET: Product
-       ShopEntityDb db = new ShopEntityDb();
-        public ActionResult Index1()
-        {
-            //var listsp = from sp in db.Products select sp;
-            List<Product> l = db.Products.ToList();
-            return View(l);
-        }
+        ShopEntityDb db = new ShopEntityDb();
+        ProductServices product = new ProductServices();
         public ActionResult Index(int? page, string seach)
         {
-            //var listsp = from sp in db.Products select sp;
-            List<Product> list;
-            if (seach == null) {
-                list = db.Products.ToList();
-            }
-            else
-            {
-                list = db.Products.Where(n => n.ProductName.Contains(seach)).ToList();
-            }
-            int pageSize = 5;
-            int pageNumber = (page ?? 1);
-            return View(list.OrderBy(n => n.ProductID).ToPagedList(pageNumber, pageSize));
+            return View(product.GetListProduct(page, seach));         
         }
         // New Prodduc
         [HttpGet]
@@ -58,29 +43,15 @@ namespace ShopWebApplication.Controllers
                 var fileName = Path.GetFileName(PhotoPath.FileName);
                 // lay anh chuyen vao thu muc
                 var path = Path.Combine(Server.MapPath("~/Content/Image"), fileName);
-                // neu anh co roi thi ra thong bao loi
-                //if (System.IO.File.Exists(path))
-                //{
-                //    ViewBag.upload = "hinh da ton tai";
-                //    return View();
-                //}
-                //else
-                //{
-                    //lay anh dua vao thu muc hinh anh
-                    PhotoPath.SaveAs(path);
-                    //Session["tenHinh"] = PhotoPath.FileName;
-                    //ViewBag.tenHinh = "";
-                    pd.PhotoPath = fileName;
-                //}
-                
+                PhotoPath.SaveAs(path);                    
+                pd.PhotoPath = fileName;                             
             }
             else
             {
                 Response.StatusCode = 404;
                 return null;
             }
-            db.Products.Add(pd);
-            db.SaveChanges();
+            product.NewProduct(pd);
             return RedirectToAction("Index");
         }
         // Edit Product
@@ -107,7 +78,6 @@ namespace ShopWebApplication.Controllers
         {
             ViewBag.SupplierID = new SelectList(db.Suppliers.OrderBy(n => n.SupplierName), "SupplierID", "SupplierName",model.SupplierID);
             ViewBag.CategoryID = new SelectList(db.Categories.OrderBy(n => n.CategoryName), "CategoryID", "CategoryName",model.CategoryID);
-            //lay ten anh
             if (PhotoPath != null)
             {
                 var fileName = Path.GetFileName(PhotoPath.FileName);
@@ -119,24 +89,9 @@ namespace ShopWebApplication.Controllers
                 //ViewBag.tenHinh = "";
                 model.PhotoPath = fileName;
             }
-                    
             if (ModelState.IsValid)
             {
-                Product product = db.Products.FirstOrDefault(n => n.ProductID == model.ProductID);
-                product.ProductName = model.ProductName;
-                product.SupplierID = model.SupplierID;
-                product.CategoryID = model.CategoryID;
-                product.Descriptions = model.Descriptions;
-                if (model.PhotoPath != null)
-                {
-                    product.PhotoPath = model.PhotoPath;
-                }
-                product.PurchasePrice = model.PurchasePrice;
-                product.Price = model.Price;
-                product.Amount = model.Amount;
-                product.Sold = model.Sold;
-                //db.Entry(model).State = System.Data.Entity.EntityState.Modified;
-                db.SaveChanges();
+                product.EditProduct(model);
                 return RedirectToAction("Index");
             }
             return View(model);
@@ -144,17 +99,7 @@ namespace ShopWebApplication.Controllers
         [HttpGet]
         public ActionResult DeleteProduct(int id)
         {
-            if(id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Product model = db.Products.SingleOrDefault(n => n.ProductID == id);
-            if(model == null)
-            {
-                return HttpNotFound();
-            }
-            db.Products.Remove(model);
-            db.SaveChanges();
+            product.DeleteProduct(id);
             return RedirectToAction("Index");
         }
     }

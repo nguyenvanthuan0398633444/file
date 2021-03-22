@@ -11,8 +11,8 @@ namespace ShopWebApplication.Services.Interfaces
     interface ICategory
     {
         IPagedList<Category> GetListCategory(int? page, string search);
-        Category NewCategory(Category category);
-        Category EditCategory(Category model);
+        Boolean NewCategory(Category category);
+        Boolean EditCategory(Category model);
         Boolean DeleteCategory(int id);
     }
 }

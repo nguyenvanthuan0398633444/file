@@ -1,4 +1,5 @@
 ﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -16,7 +17,6 @@ namespace ShopWebApplication.Services
         ShopEntityDb db = new ShopEntityDb();
         public IPagedList<Category> GetListCategory(int? page, string search)
         {
-            //var listsp = from sp in db.Categorys select sp;
             List<Category> list;
             if (search == null)
             {
@@ -27,13 +27,19 @@ namespace ShopWebApplication.Services
                 list = db.Categories.Where(n => n.CategoryName.Contains(search)).ToList();
             }
             int pageSize = 5;
-            int pageNumber = (int)page;
+            int pageNumber = (page ?? 1);
             return list.OrderBy(n => n.CategoryID).ToPagedList(pageNumber, pageSize);
         }
 
-        public Category NewCategory(Category category)
-        {
-            throw new NotImplementedException();
+        public Boolean NewCategory(Category category)
+        {  
+            if(category != null)
+            {
+                db.Categories.Add(category);
+                db.SaveChanges();
+                return true;
+            }
+            return false;
         }
         public Boolean DeleteCategory(int id)
         {
@@ -51,14 +57,15 @@ namespace ShopWebApplication.Services
             return true;
         }
 
-        public Category EditCategory(Category model)
+        public Boolean EditCategory(Category model)
         {
             if (model != null)
             {
                 db.Entry(model).State = System.Data.Entity.EntityState.Modified;
                 db.SaveChanges();
+                return true;
             }
-            return model;
+            return false;
         }
 
     }
